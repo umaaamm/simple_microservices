@@ -1,0 +1,45 @@
+
+services:
+  mongodb:
+    image: mongo:4.4
+    platform: linux/amd64
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - grpc-net
+
+  service-contact:
+    build:
+      context: ./srv_contact
+    container_name: service-contact
+    ports:
+      - "8080:8080"
+      - "50051:50051" # gRPC
+    depends_on:
+      - mongodb
+    networks:
+      - grpc-net
+    environment:
+      - MONGO_URI=mongodb://root:secret@mongodb:27017/contact?authSource=admin
+
+  service-order:
+    build:
+      context: ./srv_order
+    container_name: service-order
+    ports:
+      - "8082:8082"   # REST
+    depends_on:
+      - service-contact
+      - mongodb
+    networks:
+      - grpc-net
+    environment:
+      - MONGO_URI=mongodb://root:secret@mongodb:27017/contact?authSource=admin
+
+networks:
+  grpc-net:
+    driver: bridge
