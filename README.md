@@ -38,3 +38,5 @@ git clone https://github.com/umaaamm/srv_order_microservices.git
 git clone https://github.com/umaaamm/simple_microservices.git
 
 cd simple_microservices
+
+docker compose up --build  
